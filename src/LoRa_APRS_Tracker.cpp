@@ -12,6 +12,9 @@
 #include "display.h"
 #include "pins.h"
 #include "power_management.h"
+#include "esp32-hal-cpu.h"
+#include "esp_pm.h"
+
 
 #define VERSION "22.19.0"
 
@@ -92,8 +95,21 @@ void setup() {
   }
 
   // make sure wifi and bt is off as we don't need it:
+  WiFi.setSleep(true);
   WiFi.mode(WIFI_OFF);
   btStop();
+  long freq = getCpuFrequencyMhz();
+  logPrintlnI("Original CPU Freq is " + String(freq));
+// PM reports not supported :(
+//  esp_pm_config_esp32_t  pm_config;
+//  pm_config.light_sleep_enable = false;
+//  pm_config.max_freq_mhz = 240;
+//  pm_config.min_freq_mhz = 40;
+//
+//  esp_err_t retVal = esp_pm_configure((void*)&pm_config);
+//  if (retVal != ESP_OK);
+//  logPrintlnE("Error configuring PM: " + String(retVal));
+  setCpuFrequencyMhz(40);
 
   if (Config.button.tx) {
     // attach TX action to user button (defined by BUTTON_PIN)
@@ -107,6 +123,8 @@ void setup() {
 
   logPrintlnI("Smart Beacon is " + getSmartBeaconState());
   show_display("INFO", "Smart Beacon is " + getSmartBeaconState(), 1000);
+  freq = getCpuFrequencyMhz();
+  logPrintlnI("Adjusted CPU Freq is " + String(freq));
   logPrintlnI("setup done...");
   delay(500);
 }
@@ -137,10 +155,10 @@ void loop() {
   if (gps_loc_update != gps_loc_update_valid) {
     gps_loc_update_valid = gps_loc_update;
 
-    if (gps_loc_update)
-      logPrintlnI("GPS fix state went to VALID");
-    else
-      logPrintlnI("GPS fix state went to INVALID");
+//    if (gps_loc_update)
+//      logPrintlnI("GPS fix state went to VALID");
+//    else
+//      logPrintlnI("GPS fix state went to INVALID");
   }
 
   static double       currentHeading          = 0;

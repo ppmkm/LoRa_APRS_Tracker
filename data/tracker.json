@@ -2,11 +2,11 @@
 	"debug": false,
 	"beacons": [
 		{
-			"callsign": "NOCALL-7",
-			"path": "WIDE1-1",
+			"callsign": "SP9MUF-1",
+			"path": "WIDE1-1,WIDE2-1",
 			"message": "LoRa Tracker",
 			"timeout": 1,
-			"symbol": "[",
+			"symbol": "/",
 			"overlay": "/",
 			"smart_beacon": {
 				"active": true,
@@ -26,12 +26,12 @@
 		"alt_message": true
 	},
 	"lora": {
-		"frequency_rx": 433775000,
-		"frequency_tx": 433775000,
+		"frequency_rx": 434855000,
+		"frequency_tx": 434855000,
 		"power": 20,
-		"spreading_factor": 12,
+		"spreading_factor": 9,
 		"signal_bandwidth": 125000,
-		"coding_rate4": 5
+		"coding_rate4": 7
 	},
 	"ptt_output": {
 		"active": false,
