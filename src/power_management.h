@@ -26,6 +26,10 @@ public:
 
   double getBatteryVoltage();
   double getBatteryChargeDischargeCurrent();
+  double getCoulombData();
+  double getBattPower();
+  int getBattPct();
+
 
   bool isBatteryConnect();
   bool isChargeing();

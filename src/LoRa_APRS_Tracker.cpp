@@ -193,6 +193,10 @@ void loop() {
   static bool   BatteryIsConnected   = false;
   static String batteryVoltage       = "";
   static String batteryChargeCurrent = "";
+  static String batteryCoulomb       = "";
+  static String batteryPower         = "";
+  static String batteryPct           = "";
+
 #ifdef TTGO_T_Beam_V1_0
   static unsigned int rate_limit_check_battery = 0;
   if (!(rate_limit_check_battery++ % 60))
@@ -200,6 +204,9 @@ void loop() {
   if (BatteryIsConnected) {
     batteryVoltage       = String(powerManagement.getBatteryVoltage(), 2);
     batteryChargeCurrent = String(powerManagement.getBatteryChargeDischargeCurrent(), 0);
+    batteryCoulomb = String(powerManagement.getCoulombData());
+    batteryPower = String(powerManagement.getBattPower());
+    batteryPct = String(powerManagement.getBattPct());
   }
 #endif
 
@@ -343,7 +350,13 @@ void loop() {
 
   if (gps_time_update) {
 
-    show_display(BeaconMan.getCurrentBeaconConfig()->callsign, createDateString(now()) + "   " + createTimeString(now()), String("Sats: ") + gps.satellites.value() + " HDOP: " + gps.hdop.hdop(), String("Next Bcn: ") + (BeaconMan.getCurrentBeaconConfig()->smart_beacon.active ? "~" : "") + createTimeString(nextBeaconTimeStamp), BatteryIsConnected ? (String("Bat: ") + batteryVoltage + "V, " + batteryChargeCurrent + "mA") : "Powered via USB", String("Smart Beacon: " + getSmartBeaconState()));
+    show_display(BeaconMan.getCurrentBeaconConfig()->callsign,
+    		      createDateString(now()) + "   " + createTimeString(now()),
+				  String("Sats: ") + gps.satellites.value() + " HDOP: " + gps.hdop.hdop(),
+				  String("Next Bcn: ") + (BeaconMan.getCurrentBeaconConfig()->smart_beacon.active ? "~" : "") + createTimeString(nextBeaconTimeStamp),
+				  BatteryIsConnected ? (String("B: ") + batteryPct + "%, " + batteryVoltage + "V, " + batteryChargeCurrent + "mA") : "Powered via USB",
+				  BatteryIsConnected ? (String("")  + batteryPower + "mW, " +batteryCoulomb+"mAh"):String("Smart Beacon: " + getSmartBeaconState())
+				  );
 
     if (BeaconMan.getCurrentBeaconConfig()->smart_beacon.active) {
       // Change the Tx internal based on the current speed

@@ -10,6 +10,7 @@ bool PowerManagement::begin(TwoWire &port) {
   bool result = axp.begin(port, AXP192_SLAVE_ADDRESS);
   if (!result) {
     axp.setDCDC1Voltage(3300);
+    axp.EnableCoulombcounter();
   }
   return result;
 }
@@ -76,6 +77,20 @@ double PowerManagement::getBatteryChargeDischargeCurrent() {
   }
   return -1.0 * axp.getBattDischargeCurrent();
 }
+
+double PowerManagement::getCoulombData() {
+	return axp.getCoulombData();
+}
+
+double PowerManagement::getBattPower() {
+	return axp.getBattInpower();
+}
+
+int PowerManagement::getBattPct() {
+	return axp.getBattPercentage();
+}
+
+
 
 bool PowerManagement::isBatteryConnect() {
   return axp.isBatteryConnect();
