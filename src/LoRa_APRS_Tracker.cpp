@@ -5,6 +5,7 @@
 #include <TimeLib.h>
 #include <TinyGPS++.h>
 #include <WiFi.h>
+#include <Adafruit_BME280.h>  // BME280 Library
 #include <logger.h>
 
 #include "BeaconManager.h"
@@ -30,6 +31,7 @@ TinyGPSPlus    gps;
 void setup_gps();
 void load_config();
 void setup_lora();
+void setup_bme();
 
 String create_lat_aprs(RawDegrees lat);
 String create_long_aprs(RawDegrees lng);
@@ -43,6 +45,9 @@ String padding(unsigned int number, unsigned int width);
 
 static bool send_update          = true;
 static bool display_toggle_value = true;
+Adafruit_BME280 bme;
+static bool bme_status = false;
+
 
 static void handle_tx_click() {
   send_update = true;
@@ -61,12 +66,51 @@ static void toggle_display() {
   }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+int calc_pressure_offset(int height) {
+  //
+  // A very simple method to calculate the offset for correcting the measured air pressure
+  // to the pressure at mean sea level (MSL). It is simplificated to "For each 8m change in height
+  // the pressure is changing by 1hPa."
+  // The exact method is described at
+  // https://de.wikipedia.org/wiki/Barometrische_H%C3%B6henformel#Internationale_H%C3%B6henformel
+  //
+  int offset = round(height / 8);
+  return(offset);
+}
+///////////////////////////////////////////////////////////////////////////////////////
+
+
+//prepare APRS weather data packet from BME280
+String read_bme(){
+    bme.takeForcedMeasurement();
+    float pressure_offset = calc_pressure_offset(230);
+    float temp = bme.readTemperature();  // bme Temperatur auslesen
+    float hum = bme.readHumidity();
+    float pressure = bme.readPressure()/100 + pressure_offset;
+//    logPrintlnI(String("Temp: ") + temp);
+//    logPrintlnI(String("hum: ") + hum + "rounded: " +  round(hum));
+//    logPrintlnI(String("pres: ") + pressure);
+    char temp_f[5];
+    int tf = (int)round((temp * 1.8) +32);
+    if (tf > 0){
+    	sprintf(temp_f,"%03d",tf);
+    } else {
+    	sprintf(temp_f,"%02d",tf);
+    }
+    String retVal = "_.../...g...t" + String(temp_f) + "h" + ((int)round(hum)) + "b" + ((int)round (pressure *10));
+    logPrintlnI("packet_data: " + retVal);
+    return retVal;
+
+}
+
+
 // cppcheck-suppress unusedFunction
 void setup() {
   Serial.begin(115200);
+  Wire.begin(SDA, SCL);
 
 #ifdef TTGO_T_Beam_V1_0
-  Wire.begin(SDA, SCL);
   if (!powerManagement.begin(Wire)) {
     logPrintlnI("AXP192 init done!");
   } else {
@@ -88,6 +132,8 @@ void setup() {
 
   setup_gps();
   setup_lora();
+  setup_bme();
+  read_bme();
 
   if (Config.ptt.active) {
     pinMode(Config.ptt.io_pin, OUTPUT);
@@ -299,7 +345,13 @@ void loop() {
     }
 
     String aprsmsg;
-    aprsmsg = "!" + lat + BeaconMan.getCurrentBeaconConfig()->overlay + lng + BeaconMan.getCurrentBeaconConfig()->symbol + course_and_speed + alt;
+
+    //String wx = (bme_status)?read_bme():"";
+    if (speed_zero_sent >=3 ) {
+        aprsmsg = "!" + lat + BeaconMan.getCurrentBeaconConfig()->overlay + lng + read_bme() + BeaconMan.getCurrentBeaconConfig()->symbol + alt;
+    } else {
+        aprsmsg = "!" + lat + BeaconMan.getCurrentBeaconConfig()->overlay + lng + BeaconMan.getCurrentBeaconConfig()->symbol + course_and_speed + alt;
+    }
     // message_text every 10's packet (i.e. if we have beacon rate 1min at high
     // speed -> every 10min). May be enforced above (at expirey of smart beacon
     // rate (i.e. every 30min), or every third packet on static rate (i.e.
@@ -401,6 +453,21 @@ void load_config() {
     }
   }
 }
+
+void setup_bme() {
+  logPrintlnI("Initialize BME 280 at 0x76");
+  Wire.begin(OLED_SDA, OLED_SCL);
+  bme_status = bme.begin(0x76,&Wire);
+  if (!bme_status)
+  {
+	logPrintlnW("BME 280 not found at 0x76");
+  }
+  else
+  {
+     show_display("INFO", "BME280 Found :)", 2000);
+  }
+}
+
 
 void setup_lora() {
   logPrintlnI("Set SPI pins!");
