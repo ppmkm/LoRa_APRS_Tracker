@@ -62,6 +62,7 @@ Configuration ConfigurationManagement::readConfiguration() {
     beacon.smart_beacon.min_bcn     = v["smart_beacon"]["min_bcn"] | 5;
 
     beacon.enhance_precision = v["enhance_precision"] | false;
+    beacon.wx                = v["wx"] |false;
     beacon.lora.frequencyRx     = v["lora"]["frequency_rx"] | 433775000;
     beacon.lora.frequencyTx     = v["lora"]["frequency_tx"] | 433775000;
     beacon.lora.power           = v["lora"]["power"] | 20;
@@ -120,6 +121,7 @@ void ConfigurationManagement::writeConfiguration(Configuration conf) {
     v["smart_beacon"]["min_bcn"]     = beacon.smart_beacon.min_bcn;
 
     v["enhance_precision"] = beacon.enhance_precision;
+    v["wx"]                = beacon.wx;
 
     v["lora"]["frequency_rx"]     = beacon.lora.frequencyRx;
     v["lora"]["frequency_tx"]     = beacon.lora.frequencyTx;

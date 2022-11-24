@@ -2,12 +2,13 @@
 	"debug": false,
 	"beacons": [
 		{
-			"callsign": "SP9MUF-1",
+			"callsign": "NOCALL-1",
 			"path": "WIDE1-1,WIDE2-1",
-			"message": "LoRa Tracker",
+			"message": "LoRa 433.855,SF12,CR4:5,125kHz",
 			"timeout": 1,
 			"symbol": "/",
-			"overlay": "/",
+			"overlay": "[",
+			"wx": false,
 			"smart_beacon": {
 				"active": true,
 				"turn_min": 25,
@@ -18,9 +19,73 @@
 				"min_tx_dist": 100,
 				"min_bcn": 5
 			},
-			"enhance_precision": true
+			"enhance_precision": false,
+			"lora": {
+				"frequency_rx": 434855000,
+				"frequency_tx": 434855000,
+				"power": 20,
+				"spreading_factor": 9,
+				"signal_bandwidth": 125000,
+				"coding_rate4": 7
+			}			
+		},
+		{
+			"callsign": "NOCALL-3",
+			"path": "WIDE1-1,WIDE2-1",
+			"message": "LoRa Tracker with WX",
+			"timeout": 1,
+			"symbol": "/",
+			"overlay": "/",
+			"wx": true,
+			"smart_beacon": {
+				"active": true,
+				"turn_min": 25,
+				"slow_rate": 300,
+				"slow_speed": 10,
+				"fast_rate": 60,
+				"fast_speed": 100,
+				"min_tx_dist": 100,
+				"min_bcn": 5
+			},
+			"enhance_precision": false,
+			"lora": {
+				"frequency_rx": 434855000,
+				"frequency_tx": 434855000,
+				"power": 20,
+				"spreading_factor": 9,
+				"signal_bandwidth": 125000,
+				"coding_rate4": 7
+			}			
+		},		
+		{
+			"callsign": "NOCALL-9",
+			"path": "WIDE1-1,WIDE2-1",
+			"message": "RV, 433.775, 125kHz, SF12, CR 4:5",
+			"timeout": 1,
+			"symbol": "/",
+			"overlay": "R",
+			"wx": false,
+			"smart_beacon": {
+				"active": true,
+				"turn_min": 25,
+				"slow_rate": 300,
+				"slow_speed": 10,
+				"fast_rate": 60,
+				"fast_speed": 100,
+				"min_tx_dist": 100,
+				"min_bcn": 5
+			},
+			"enhance_precision": false,
+			"lora": {
+				"frequency_rx": 433775000,
+				"frequency_tx": 433775000,
+				"power": 20,
+				"spreading_factor": 12,
+				"signal_bandwidth": 125000,
+				"coding_rate4": 5
+			}			
 		}
-	],
+		],
 	"button": {
 		"tx": true,
 		"alt_message": true

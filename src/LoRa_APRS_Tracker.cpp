@@ -55,6 +55,7 @@ static void handle_tx_click() {
 
 static void handle_next_beacon() {
   BeaconMan.loadNextBeacon();
+  setup_lora(BeaconMan.getCurrentBeaconConfig()->lora);
   show_display(BeaconMan.getCurrentBeaconConfig()->callsign, BeaconMan.getCurrentBeaconConfig()->message, 2000);
 }
 
@@ -348,9 +349,9 @@ void loop() {
     String aprsmsg;
 
     //String wx = (bme_status)?read_bme():"";
-    if (speed_zero_sent >=3 ) {
+    if (BeaconMan.getCurrentBeaconConfig()->wx) {
         aprsmsg = "!" + lat + BeaconMan.getCurrentBeaconConfig()->overlay + lng + read_bme() + BeaconMan.getCurrentBeaconConfig()->symbol + alt;
-    } else {
+    } else if (speed_zero_sent < 3){
         aprsmsg = "!" + lat + BeaconMan.getCurrentBeaconConfig()->overlay + lng + BeaconMan.getCurrentBeaconConfig()->symbol + course_and_speed + alt;
     }
     // message_text every 10's packet (i.e. if we have beacon rate 1min at high
@@ -491,8 +492,8 @@ void setup_lora(Configuration::LoRa loraCfg){
 	  LoRa.enableCrc();
 
 	  LoRa.setTxPower(loraCfg.power);
-	  logPrintlnI("LoRa init done!");
-	  show_display("INFO", "LoRa init done!", 2000);
+	  logPrintlnI("LoRa Freq: " + String(loraCfg.frequencyTx));
+	  show_display("INFO", "LoRa Freq: " + String(loraCfg.frequencyTx), 2000);
 }
 
 
