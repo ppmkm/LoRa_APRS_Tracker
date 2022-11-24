@@ -62,6 +62,12 @@ Configuration ConfigurationManagement::readConfiguration() {
     beacon.smart_beacon.min_bcn     = v["smart_beacon"]["min_bcn"] | 5;
 
     beacon.enhance_precision = v["enhance_precision"] | false;
+    beacon.lora.frequencyRx     = v["lora"]["frequency_rx"] | 433775000;
+    beacon.lora.frequencyTx     = v["lora"]["frequency_tx"] | 433775000;
+    beacon.lora.power           = v["lora"]["power"] | 20;
+    beacon.lora.spreadingFactor = v["lora"]["spreading_factor"] | 12;
+    beacon.lora.signalBandwidth = v["lora"]["signal_bandwidth"] | 125000;
+    beacon.lora.codingRate4     = v["lora"]["coding_rate4"] | 5;
 
     conf.beacons.push_back(beacon);
   }
@@ -114,6 +120,14 @@ void ConfigurationManagement::writeConfiguration(Configuration conf) {
     v["smart_beacon"]["min_bcn"]     = beacon.smart_beacon.min_bcn;
 
     v["enhance_precision"] = beacon.enhance_precision;
+
+    v["lora"]["frequency_rx"]     = beacon.lora.frequencyRx;
+    v["lora"]["frequency_tx"]     = beacon.lora.frequencyTx;
+    v["lora"]["power"]            = beacon.lora.power;
+    v["lora"]["spreading_factor"] = beacon.lora.spreadingFactor;
+    v["lora"]["signal_bandwidth"] = beacon.lora.signalBandwidth;
+    v["lora"]["coding_rate4"]     = beacon.lora.codingRate4;
+
   }
 
   data["debug"] = conf.debug;

@@ -30,7 +30,7 @@ TinyGPSPlus    gps;
 
 void setup_gps();
 void load_config();
-void setup_lora();
+void setup_lora(Configuration::LoRa loraCfg);
 void setup_bme();
 
 String create_lat_aprs(RawDegrees lat);
@@ -131,7 +131,7 @@ void setup() {
   load_config();
 
   setup_gps();
-  setup_lora();
+  setup_lora(Config.lora);
   setup_bme();
   read_bme();
 
@@ -148,14 +148,15 @@ void setup() {
   logPrintlnI("Original CPU Freq is " + String(freq));
 // PM reports not supported :(
 //  esp_pm_config_esp32_t  pm_config;
-//  pm_config.light_sleep_enable = false;
+//  pm_config.light_sleep_enable = true;
 //  pm_config.max_freq_mhz = 240;
 //  pm_config.min_freq_mhz = 40;
-//
+
 //  esp_err_t retVal = esp_pm_configure((void*)&pm_config);
 //  if (retVal != ESP_OK);
-//  logPrintlnE("Error configuring PM: " + String(retVal));
-  setCpuFrequencyMhz(40);
+//    logPrintlnE("Error configuring PM: " + String(retVal));
+setCpuFrequencyMhz(80);
+
 
   if (Config.button.tx) {
     // attach TX action to user button (defined by BUTTON_PIN)
@@ -180,17 +181,17 @@ void loop() {
   userButton.tick();
 
   if (Config.debug) {
-    while (Serial.available() > 0) {
-      char c = Serial.read();
-      // Serial.print(c);
-      gps.encode(c);
-    }
+	while (Serial.available() > 0) {
+	  char c = Serial.read();
+	  // Serial.print(c);
+	  gps.encode(c);
+	}
   } else {
-    while (ss.available() > 0) {
-      char c = ss.read();
-      // Serial.print(c);
-      gps.encode(c);
-    }
+	while (ss.available() > 0) {
+	  char c = ss.read();
+	  // Serial.print(c);
+	  gps.encode(c);
+	}
   }
 
   bool          gps_time_update      = gps.time.isUpdated();
@@ -469,30 +470,31 @@ void setup_bme() {
 }
 
 
-void setup_lora() {
-  logPrintlnI("Set SPI pins!");
-  SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_CS);
-  logPrintlnI("Set LoRa pins!");
-  LoRa.setPins(LORA_CS, LORA_RST, LORA_IRQ);
+void setup_lora(Configuration::LoRa loraCfg){
+	  logPrintlnI("Set SPI pins!");
+	  SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_CS);
+	  logPrintlnI("Set LoRa pins!");
+	  LoRa.setPins(LORA_CS, LORA_RST, LORA_IRQ);
 
-  long freq = Config.lora.frequencyTx;
-  logPrintI("frequency: ");
-  logPrintlnI(String(freq));
-  if (!LoRa.begin(freq)) {
-    logPrintlnE("Starting LoRa failed!");
-    show_display("ERROR", "Starting LoRa failed!");
-    while (true) {
-    }
-  }
-  LoRa.setSpreadingFactor(Config.lora.spreadingFactor);
-  LoRa.setSignalBandwidth(Config.lora.signalBandwidth);
-  LoRa.setCodingRate4(Config.lora.codingRate4);
-  LoRa.enableCrc();
+	  long freq = loraCfg.frequencyTx;
+	  logPrintI("frequency: ");
+	  logPrintlnI(String(freq));
+	  if (!LoRa.begin(freq)) {
+	    logPrintlnE("Starting LoRa failed!");
+	    show_display("ERROR", "Starting LoRa failed!");
+	    while (true) {
+	    }
+	  }
+	  LoRa.setSpreadingFactor(loraCfg.spreadingFactor);
+	  LoRa.setSignalBandwidth(loraCfg.signalBandwidth);
+	  LoRa.setCodingRate4(loraCfg.codingRate4);
+	  LoRa.enableCrc();
 
-  LoRa.setTxPower(Config.lora.power);
-  logPrintlnI("LoRa init done!");
-  show_display("INFO", "LoRa init done!", 2000);
+	  LoRa.setTxPower(loraCfg.power);
+	  logPrintlnI("LoRa init done!");
+	  show_display("INFO", "LoRa init done!", 2000);
 }
+
 
 void setup_gps() {
   ss.begin(9600, SERIAL_8N1, GPS_TX, GPS_RX);
