@@ -532,6 +532,31 @@ char *s_min_nn(uint32_t min_nnnnn, int high_precision) {
   return buf;
 }
 
+
+String encode_b91(const int number, const int radix)
+{
+	int remain_number = number;
+    String retVal = "";
+	while (remain_number > 0) {
+		int digit = remain_number%radix;
+		remain_number/=radix;
+		retVal = ((char)(digit+33))+retVal;
+	}
+	return retVal;
+}
+
+int decode_b91(String numeral, const int radix) {
+	int power  = 1;
+	int retVal = 0;
+	for (int i = numeral.length()-1 ; i>=0; i--) {
+		int digit = numeral[i];
+		retVal += (digit-33)*power;
+		power *=radix;
+	}
+	return retVal;
+}
+
+
 String create_lat_aprs(RawDegrees lat) {
   char str[20];
   char n_s = 'N';
